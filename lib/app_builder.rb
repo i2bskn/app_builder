@@ -1,5 +1,2 @@
 require "app_builder/version"
-
-module AppBuilder
-  # Your code goes here...
-end
+require "app_builder/config"
