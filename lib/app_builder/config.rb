@@ -4,7 +4,7 @@ module AppBuilder
       :build_id,
       :project_name,
       :remote_repository,
-      :target_branch,
+      :branch,
       :working_path,
       :repo_path,
       :archive_path,
