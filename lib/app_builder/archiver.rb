@@ -9,6 +9,10 @@ module AppBuilder
       end
 
       execute("git archive #{branch} | tar -x -C #{archive_path}", chdir: repo_path)
+
+      rev_hash = { "branch" => branch, "revision" => revision }
+      File.open(revision_path, "w") { |f| f.write(rev_hash.to_yaml) }
+      log(:info, "Create revision: #{rev_hash.inspect}")
     end
   end
 end
