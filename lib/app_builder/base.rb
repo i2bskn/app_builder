@@ -3,7 +3,7 @@ module AppBuilder
     extend Forwardable
 
     attr_accessor :config
-    ::AppBuilder::Config::VALID_OPTIONS.each do |name|
+    ::AppBuilder::Config::PARAMETERS.each do |name|
       def_delegator :config, name
     end
 

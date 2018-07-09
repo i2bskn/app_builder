@@ -2,7 +2,7 @@ module AppBuilder
   class Builder < Base
     def build
       archiver.archive
-      execute("tar zcf #{File.join(build_path, 'app.tar.gz')} .", chdir: archive_path)
+      execute("tar zcf #{builded_src_path} .", chdir: archive_path)
     end
 
     def archiver
