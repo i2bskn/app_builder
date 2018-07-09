@@ -4,6 +4,9 @@ dest: <%= remote_app_home %>/releases/<%= build_id %>
 commands:
   pre:
     - echo 'staring deploy'
+    - mkdir -p <%= remote_app_home %>/releases
+    - mkdir -p <%= remote_app_home %>/shared/log
+    - mkdir -p <%= remote_app_home %>/shared/pids
   post:
     - ln -nfs <%= remote_app_home %>/releases/<%= build_id %> <%= remote_app_home %>/current
     - rm -rf <%= remote_app_home %>/current/log

@@ -1,5 +1,11 @@
 module AppBuilder
   class Archiver < Base
+    class << self
+      def archive(config)
+        new(config).archive
+      end
+    end
+
     def archive
       execute("mkdir -p #{working_path} #{archive_path} #{build_path}")
       if File.exist?("#{repo_path}/HEAD")

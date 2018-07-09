@@ -32,8 +32,9 @@ module AppBuilder
 
     attr_accessor *VALID_OPTIONS
 
-    def initialize
+    def initialize(options = {})
       reset
+      merge(options)
     end
 
     def merge(params)
@@ -84,7 +85,7 @@ module AppBuilder
     end
 
     def manifest_url
-      File.join(manifest_base_url, build_name)
+      File.join(manifest_base_url, manifest_name)
     end
 
     def remote_app_home

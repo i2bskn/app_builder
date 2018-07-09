@@ -1,5 +1,11 @@
 module AppBuilder
   class Uploader < Base
+    class << self
+      def upload(config)
+        new(config).upload
+      end
+    end
+
     def upload
       builder.build
       if s3?(src_url)
