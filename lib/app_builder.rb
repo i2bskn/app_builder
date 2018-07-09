@@ -1,3 +1,4 @@
+require "erb"
 require "forwardable"
 require "logger"
 require "open3"

@@ -2,10 +2,17 @@ module AppBuilder
   class Uploader < Base
     def upload
       builder.build
-      if s3?(remote_src_path)
-        upload_to_s3(builded_src_path, remote_src_path)
+      if s3?(src_url)
+        upload_to_s3(builded_src_path, src_url)
       else
         upload_to_server(builded_src_path, remote_src_path)
+      end
+
+      generate_manifest
+      if s3?(manifest_url)
+        upload_to_s3(builded_manifest_path, manifest_url)
+      else
+        upload_to_server(builded_manifest_path, remote_manifest_path)
       end
     end
 
@@ -17,10 +24,16 @@ module AppBuilder
       execute("scp -i #{identity_file} #{local} #{ssh_user}@#{resource_host}:#{remote}")
     end
 
+    def generate_manifest
+      checksum = `openssl sha256 #{builded_src_path} | awk -F"=" '{ print $2 }'`.strip
+      manifest = ERB.new(File.read(manifest_template_path)).result(binding)
+      File.open(builded_manifest_path, "w") { |f| f.write(manifest) }
+    end
+
     private
 
-      def s3?(path)
-        path.to_s.start_with?("s3://")
+      def s3?(url)
+        url.to_s.start_with?("s3://")
       end
 
       def builder
