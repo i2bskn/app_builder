@@ -14,6 +14,7 @@ module AppBuilder
         conf = conf.config
       end
       super(conf)
+      @archiver ||= Archiver.new(config)
     end
 
     def build
