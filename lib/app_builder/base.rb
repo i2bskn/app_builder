@@ -7,8 +7,8 @@ module AppBuilder
       def_delegator :config, name
     end
 
-    def initialize(config = nil)
-      @config = config || ::AppBuilder::Config.new
+    def initialize(conf = nil)
+      @config = conf || ::AppBuilder::Config.new
     end
 
     private

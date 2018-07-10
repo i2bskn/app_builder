@@ -1,8 +1,8 @@
 module AppBuilder
   class Archiver < Base
     class << self
-      def archive(config)
-        new(config).archive
+      def archive(conf)
+        new(conf).archive
       end
     end
 

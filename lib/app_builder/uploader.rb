@@ -1,9 +1,23 @@
 module AppBuilder
   class Uploader < Base
+    attr_accessor :builder
+
     class << self
-      def upload(config)
-        new(config).upload
+      def upload(conf)
+        new(conf).upload
       end
+    end
+
+    def initialize(conf = nil)
+      case conf
+      when AppBuilder::Archiver
+        @builder = Builder.new(conf)
+        conf = conf.config
+      when AppBuilder::Builder
+        @builder = conf
+        conf = conf.config
+      end
+      super(conf)
     end
 
     def upload
@@ -40,10 +54,6 @@ module AppBuilder
 
       def s3?(url)
         url.to_s.start_with?("s3://")
-      end
-
-      def builder
-        @builder || Builder.new(config)
       end
   end
 end

@@ -1,18 +1,24 @@
 module AppBuilder
   class Builder < Base
+    attr_accessor :archiver
+
     class << self
-      def build(config)
-        new(config).build
+      def build(conf)
+        new(conf).build
       end
+    end
+
+    def initialize(conf = nil)
+      if conf.class <= Archiver
+        @archiver = conf
+        conf = conf.config
+      end
+      super(conf)
     end
 
     def build
       archiver.archive
       execute("tar zcf #{builded_src_path} .", chdir: archive_path)
-    end
-
-    def archiver
-      @archiver ||= Archiver.new(config)
     end
   end
 end
