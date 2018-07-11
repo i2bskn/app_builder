@@ -2,7 +2,7 @@ module AppBuilder
   class Server
     attr_accessor :address, :user, :options, :logger
 
-    LOCAL_ADDRESSES = %w(local 127.0.0.1).freeze
+    LOCAL_ADDRESSES = %w(local localhost 127.0.0.1).freeze
 
     def initialize(address = nil, user: nil, options: {}, logger: nil)
       @address = address
@@ -14,8 +14,8 @@ module AppBuilder
     def execute(*cmds)
       results = []
 
+      options = cmds.last.is_a?(Hash) ? cmds.pop : {}
       if local?
-        options = cmds.last.is_a?(Hash) ? cmds.pop : {}
         cmds.each do |cmd|
           message = "Execute command [local]: #{cmd}"
           message += " (with: #{options.inspect})" unless options.empty?
@@ -28,6 +28,7 @@ module AppBuilder
       else
         ssh_start do |ssh|
           cmds.each do |cmd|
+            cmd = "cd #{options[:chdir]}; #{cmd}" if options.has_key?(:chdir)
             log(:info, "Execute command [#{address}]: #{cmd}")
             results << ssh.exec!(cmd).chomp
           end
@@ -77,8 +78,7 @@ module AppBuilder
     private
 
       def log(level, message)
-        return unless logger
-        logger.send(level, message)
+        logger&.send(level, message)
       end
 
       def ssh_options

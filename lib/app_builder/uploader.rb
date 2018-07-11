@@ -10,14 +10,15 @@ module AppBuilder
 
     def initialize(conf = nil)
       case conf
-      when AppBuilder::Archiver
+      when Archiver
         @builder = Builder.new(conf)
         conf = conf.config
-      when AppBuilder::Builder
+      when Builder
         @builder = conf
         conf = conf.config
       end
       super(conf)
+      @builder ||= Builder.new(config)
     end
 
     def upload
@@ -41,7 +42,7 @@ module AppBuilder
     end
 
     def upload_to_server(local, remote)
-      execute("scp -i #{identity_file} #{local} #{ssh_user}@#{resource_host}:#{remote}")
+      resource_server.upload(local, remote)
     end
 
     def generate_manifest
@@ -54,6 +55,10 @@ module AppBuilder
 
       def s3?(url)
         url.to_s.start_with?("s3://")
+      end
+
+      def resource_server
+        @resource_server ||= Server.new(resource_host, user: resource_user, options: resource_ssh_options, logger: logger)
       end
   end
 end

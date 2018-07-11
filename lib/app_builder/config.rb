@@ -1,6 +1,9 @@
 module AppBuilder
   class Config
-    VALID_OPTIONS = [
+    CHANGEABLE_PARAMETERS = [
+      :build_host,
+      :build_user,
+      :build_ssh_options,
       :build_id,
       :project_name,
       :remote_repository,
@@ -8,12 +11,14 @@ module AppBuilder
       :revision,
       :src_base_url,
       :manifest_base_url,
+      :builded_src_ext,
+      :manifest_ext,
       :remote_src_path,
       :remote_manifest_path,
       :manifest_template_path,
       :resource_host,
-      :ssh_user,
-      :identity_file,
+      :resource_user,
+      :resource_ssh_options,
       :logger,
     ].freeze
 
@@ -28,9 +33,9 @@ module AppBuilder
       :src_url,
       :manifest_url,
       :remote_app_home,
-    ].concat(VALID_OPTIONS).freeze
+    ].concat(CHANGEABLE_PARAMETERS).freeze
 
-    attr_accessor *VALID_OPTIONS
+    attr_accessor *CHANGEABLE_PARAMETERS
 
     def initialize(options = {})
       reset
@@ -45,11 +50,11 @@ module AppBuilder
     end
 
     def build_name
-      "#{build_id}.tar.gz"
+      [build_id, builded_src_ext].join(".")
     end
 
     def manifest_name
-      "#{build_id}.yml"
+      [build_id, manifest_ext].join(".")
     end
 
     def working_path
@@ -93,14 +98,19 @@ module AppBuilder
     end
 
     def reset
+      @build_host             = "localhost"
+      @build_user             = ENV.fetch("USER", nil)
+      @build_ssh_options      = {}
       @build_id               = Time.now.strftime("%Y%m%d%H%M%S")
       @project_name           = File.basename(`git rev-parse --show-toplevel`.chomp)
       @remote_repository      = `git remote get-url origin`.chomp
       @branch                 = ENV.fetch("TARGET_BRANCH", "master")
       @revision               = `git rev-parse #{branch}`.chomp
+      @builded_src_ext        = "tar.gz"
+      @manifest_ext           = "yml"
       @manifest_template_path = File.expand_path("template/manifest.yml.erb", __dir__)
-      @ssh_user               = ENV.fetch("USER", nil)
-      @identity_file          = "~/.ssh/id_rsa"
+      @resource_user          = build_user
+      @resource_ssh_options   = build_ssh_options
       @logger                 = Logger.new(STDOUT)
     end
   end
