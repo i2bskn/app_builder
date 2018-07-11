@@ -22,26 +22,24 @@ module AppBuilder
     end
 
     def upload
+      upload_proc = s3? ? method(:upload_to_s3) : method(:upload_to_server)
       builder.build
-      if s3?(src_url)
-        upload_to_s3(builded_src_path, src_url)
-      else
-        upload_to_server(builded_src_path, remote_src_path)
-      end
-
+      upload_proc.call(builded_src_path, remote_src_file)
       generate_manifest
-      if s3?(manifest_url)
-        upload_to_s3(builded_manifest_path, manifest_url)
-      else
-        upload_to_server(builded_manifest_path, remote_manifest_path)
-      end
+      upload_proc.call(builded_manifest_path, remote_manifest_file)
     end
 
     def upload_to_s3(local, remote)
-      execute("aws s3 cp #{local} #{remote}")
+      log(:info, "Upload #{local} to #{src_url}")
+      s3_client.put_object(
+        bucket: upload_id,
+        key:    remote,
+        body:   File.open(local),
+      )
     end
 
     def upload_to_server(local, remote)
+      log(:info, "Upload #{local} to #{src_url}")
       resource_server.upload(local, remote)
     end
 
@@ -53,12 +51,25 @@ module AppBuilder
 
     private
 
-      def s3?(url)
-        url.to_s.start_with?("s3://")
+      def s3?
+        upload_type == :s3
+      end
+
+      def s3_client
+        @s3_client ||= Aws::S3::Client.new(
+          region:        region,
+          access_key_id: access_key_id,
+          secret_access_key: secret_access_key
+        )
       end
 
       def resource_server
-        @resource_server ||= Server.new(resource_host, user: resource_user, options: resource_ssh_options, logger: logger)
+        @resource_server ||= Server.new(
+          resource_host,
+          user:    resource_user,
+          options: resource_ssh_options,
+          logger:  logger
+        )
       end
   end
 end

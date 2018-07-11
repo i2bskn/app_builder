@@ -7,6 +7,7 @@ require "yaml"
 
 require "net/ssh"
 require "net/scp"
+require "aws-sdk-s3"
 
 require "app_builder/version"
 require "app_builder/config"

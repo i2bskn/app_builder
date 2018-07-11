@@ -1,25 +1,38 @@
 module AppBuilder
   class Config
     CHANGEABLE_PARAMETERS = [
-      :build_host,
-      :build_user,
-      :build_ssh_options,
       :build_id,
       :project_name,
       :remote_repository,
       :branch,
       :revision,
-      :src_base_url,
-      :manifest_base_url,
+      :upload_type,
+      :upload_id, # bucket name or remote host
+      :logger,
+
+      # source
       :builded_src_ext,
-      :manifest_ext,
       :remote_src_path,
-      :remote_manifest_path,
+
+      # manifest
       :manifest_template_path,
+      :remote_manifest_path,
+      :manifest_ext,
+
+      # Only use when upload to S3
+      :region,
+      :access_key_id,
+      :secret_access_key,
+
+      # Only use when upload with scp
       :resource_host,
       :resource_user,
       :resource_ssh_options,
-      :logger,
+
+      # Only use when remote build
+      # :build_host,
+      # :build_user,
+      # :build_ssh_options,
     ].freeze
 
     PARAMETERS = [
@@ -30,8 +43,9 @@ module AppBuilder
       :builded_src_path,
       :builded_manifest_path,
       :revision_path,
+      :remote_src_file,
+      :remote_manifest_file,
       :src_url,
-      :manifest_url,
       :remote_app_home,
     ].concat(CHANGEABLE_PARAMETERS).freeze
 
@@ -85,12 +99,16 @@ module AppBuilder
       File.join(archive_path, "revision.yml")
     end
 
-    def src_url
-      File.join(src_base_url, build_name)
+    def remote_src_file
+      File.join(remote_src_path, build_name)
     end
 
-    def manifest_url
-      File.join(manifest_base_url, manifest_name)
+    def remote_manifest_file
+      File.join(remote_manifest_path, manifest_name)
+    end
+
+    def src_url
+      "#{upload_type.to_s}://#{File.join(upload_id, remote_src_path, build_name)}"
     end
 
     def remote_app_home
@@ -109,9 +127,38 @@ module AppBuilder
       @builded_src_ext        = "tar.gz"
       @manifest_ext           = "yml"
       @manifest_template_path = File.expand_path("template/manifest.yml.erb", __dir__)
-      @resource_user          = build_user
-      @resource_ssh_options   = build_ssh_options
+      @resource_user          = @build_user
+      @resource_ssh_options   = {}
       @logger                 = Logger.new(STDOUT)
+      @upload_type            = :s3
+
+      # for upload to S3
+      @region = ENV.fetch("AWS_DEFAULT_REGION", aws_config("region") || "ap-northeast-1")
+      @access_key_id = ENV.fetch("AWS_ACCESS_KEY_ID", aws_credential("aws_access_key_id"))
+      @secret_access_key = ENV.fetch("AWS_SECRET_ACCESS_KEY", aws_credential("aws_secret_access_key"))
     end
+
+    private
+
+      def aws_config(key)
+        find_aws_setting_by(
+          ENV.fetch("AWS_CONFIG_FILE", File.expand_path("~/.aws/config")),
+          key,
+        )
+      end
+
+      def aws_credential(key)
+        find_aws_setting_by(
+          ENV.fetch("AWS_CREDENTIAL_FILE", File.expand_path("~/.aws/credentials")),
+          key,
+        )
+      end
+
+      def find_aws_setting_by(path, key)
+        return nil unless File.exist?(path)
+        File.readlines(path).detect { |line|
+          line.start_with?(/\A\s*#{key}/)
+        }&.split("=")&.last&.strip
+      end
   end
 end

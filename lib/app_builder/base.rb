@@ -22,7 +22,7 @@ module AppBuilder
       end
 
       def build_server
-        @build_server ||= Server.new(build_host, user: build_user, options: build_ssh_options, logger: logger)
+        @build_server ||= Server.new(:localhost, logger: logger)
       end
   end
 end

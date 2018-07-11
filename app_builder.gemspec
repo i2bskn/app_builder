@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "net-ssh"
   spec.add_dependency "net-scp"
+  spec.add_dependency "aws-sdk-s3"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"
