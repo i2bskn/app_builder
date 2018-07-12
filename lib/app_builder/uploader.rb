@@ -32,7 +32,7 @@ module AppBuilder
     end
 
     def upload_to_s3(local, remote)
-      log(:info, "Upload #{local} to #{src_url}")
+      log(:info, "Upload #{local} to #{config.uploaded_url(remote)}")
       s3_client.put_object(
         bucket: upload_id,
         key:    remote,

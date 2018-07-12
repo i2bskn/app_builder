@@ -48,6 +48,7 @@ module AppBuilder
       :remote_src_file,
       :remote_manifest_file,
       :src_url,
+      :manifest_url,
       :remote_app_home,
     ].concat(CHANGEABLE_PARAMETERS).freeze
 
@@ -110,11 +111,19 @@ module AppBuilder
     end
 
     def src_url
-      "#{upload_type.to_s}://#{File.join(upload_id, remote_src_path, build_name)}"
+      uploaded_url(remote_src_file)
+    end
+
+    def manifest_url
+      uploaded_url(remote_manifest_file)
     end
 
     def remote_app_home
       File.join(remote_app_home_base, project_name)
+    end
+
+    def uploaded_url(path)
+      "#{upload_type.to_s}://#{File.join(upload_id, path)}"
     end
 
     def reset
