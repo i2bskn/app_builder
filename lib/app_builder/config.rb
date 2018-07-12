@@ -1,14 +1,15 @@
 module AppBuilder
   class Config
     CHANGEABLE_PARAMETERS = [
-      :build_id,          # default: timestamp
-      :project_name,      # default: repository name
-      :remote_repository, # default: remote origin
-      :branch,            # default: TARGET_BRANCH or master
-      :revision,          # default: commit hash
-      :upload_type,       # :s3 or :http or :https (default: :s3)
-      :upload_id,         # bucket name or remote host (default: none)
-      :logger,            # default: AppBuilder::Logger
+      :build_id,             # default: timestamp
+      :project_name,         # default: repository name
+      :remote_repository,    # default: remote origin
+      :branch,               # default: TARGET_BRANCH or master
+      :revision,             # default: commit hash
+      :upload_type,          # :s3 or :http or :https (default: :s3)
+      :upload_id,            # bucket name or remote host (default: none)
+      :remote_app_home_base, # default: /var/www
+      :logger,               # default: AppBuilder::Logger
 
       # hooks
       :before_archive,
@@ -113,7 +114,7 @@ module AppBuilder
     end
 
     def remote_app_home
-      File.join("/var/www", project_name)
+      File.join(remote_app_home_base, project_name)
     end
 
     def reset
@@ -127,6 +128,7 @@ module AppBuilder
       @remote_manifest_path   = "manifests"
       @resource_user          = ENV.fetch("USER", nil)
       @resource_ssh_options   = {}
+      @remote_app_home_base   = "/var/www"
       @logger                 = Logger.new(STDOUT)
       @upload_type            = :s3
 
