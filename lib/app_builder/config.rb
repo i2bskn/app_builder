@@ -1,23 +1,21 @@
 module AppBuilder
   class Config
     CHANGEABLE_PARAMETERS = [
-      :build_id,
-      :project_name,
-      :remote_repository,
-      :branch,
-      :revision,
-      :upload_type,
-      :upload_id, # bucket name or remote host
-      :logger,
+      :build_id,          # default: timestamp
+      :project_name,      # default: repository name
+      :remote_repository, # default: remote origin
+      :branch,            # default: TARGET_BRANCH or master
+      :revision,          # default: commit hash
+      :upload_type,       # :s3 or :http or :https (default: :s3)
+      :upload_id,         # bucket name or remote host (default: none)
+      :logger,            # default: AppBuilder::Logger
 
       # source
-      :builded_src_ext,
-      :remote_src_path,
+      :remote_src_path, # default: assets
 
       # manifest
-      :manifest_template_path,
-      :remote_manifest_path,
-      :manifest_ext,
+      :manifest_template_path, # default: lib/app_builder/template/manifest.yml.erb in this repository
+      :remote_manifest_path,   # default: manifests
 
       # Only use when upload to S3
       :region,
@@ -28,11 +26,6 @@ module AppBuilder
       :resource_host,
       :resource_user,
       :resource_ssh_options,
-
-      # Only use when remote build
-      # :build_host,
-      # :build_user,
-      # :build_ssh_options,
     ].freeze
 
     PARAMETERS = [
@@ -64,11 +57,11 @@ module AppBuilder
     end
 
     def build_name
-      [build_id, builded_src_ext].join(".")
+      "#{build_id}.tar.gz"
     end
 
     def manifest_name
-      [build_id, manifest_ext].join(".")
+      "#{build_id}.yml"
     end
 
     def working_path
@@ -116,23 +109,20 @@ module AppBuilder
     end
 
     def reset
-      @build_host             = "localhost"
-      @build_user             = ENV.fetch("USER", nil)
-      @build_ssh_options      = {}
       @build_id               = Time.now.strftime("%Y%m%d%H%M%S")
       @project_name           = File.basename(`git rev-parse --show-toplevel`.chomp)
       @remote_repository      = `git remote get-url origin`.chomp
       @branch                 = ENV.fetch("TARGET_BRANCH", "master")
       @revision               = `git rev-parse #{branch}`.chomp
-      @builded_src_ext        = "tar.gz"
-      @manifest_ext           = "yml"
+      @remote_src_path        = "assets"
       @manifest_template_path = File.expand_path("template/manifest.yml.erb", __dir__)
-      @resource_user          = @build_user
+      @remote_manifest_path   = "manifests"
+      @resource_user          = ENV.fetch("USER", nil)
       @resource_ssh_options   = {}
       @logger                 = Logger.new(STDOUT)
       @upload_type            = :s3
 
-      # for upload to S3
+      # for upload to S3 (from `.aws/config` and `.aws/credentials`)
       @region = ENV.fetch("AWS_DEFAULT_REGION", aws_config("region") || "ap-northeast-1")
       @access_key_id = ENV.fetch("AWS_ACCESS_KEY_ID", aws_credential("aws_access_key_id"))
       @secret_access_key = ENV.fetch("AWS_SECRET_ACCESS_KEY", aws_credential("aws_secret_access_key"))

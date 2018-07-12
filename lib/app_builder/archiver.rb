@@ -7,18 +7,10 @@ module AppBuilder
     end
 
     def archive
-      execute("mkdir -p #{working_path} #{archive_path} #{build_path}")
-      if File.exist?("#{repo_path}/HEAD")
-        execute("git remote update", chdir: repo_path)
-      else
-        execute("git clone --mirror #{remote_repository} #{repo_path}")
-      end
-
+      create_base_directories
+      update_repository
       execute("git archive #{branch} | tar -x -C #{archive_path}", chdir: repo_path)
-
-      rev_hash = { "branch" => branch, "revision" => revision }
-      File.open(revision_path, "w") { |f| f.write(rev_hash.to_yaml) }
-      log(:info, "Create revision: #{rev_hash.inspect}")
+      create_revision_to(revision_path)
     end
   end
 end
