@@ -10,6 +10,14 @@ module AppBuilder
       :upload_id,         # bucket name or remote host (default: none)
       :logger,            # default: AppBuilder::Logger
 
+      # hooks
+      :before_archive,
+      :after_archive,
+      :before_build,
+      :after_build,
+      :before_upload,
+      :after_upload,
+
       # source
       :remote_src_path, # default: assets
 
@@ -123,12 +131,25 @@ module AppBuilder
       @upload_type            = :s3
 
       # for upload to S3 (from `.aws/config` and `.aws/credentials`)
-      @region = ENV.fetch("AWS_DEFAULT_REGION", aws_config("region") || "ap-northeast-1")
-      @access_key_id = ENV.fetch("AWS_ACCESS_KEY_ID", aws_credential("aws_access_key_id"))
+      @region            = ENV.fetch("AWS_DEFAULT_REGION", aws_config("region") || "ap-northeast-1")
+      @access_key_id     = ENV.fetch("AWS_ACCESS_KEY_ID", aws_credential("aws_access_key_id"))
       @secret_access_key = ENV.fetch("AWS_SECRET_ACCESS_KEY", aws_credential("aws_secret_access_key"))
+
+      initialize_hooks
     end
 
     private
+
+      def initialize_hooks
+        [
+          :@before_archive,
+          :@after_archive,
+          :@before_build,
+          :@after_build,
+          :@before_upload,
+          :@after_upload,
+        ].each { |hook_name| instance_variable_set(hook_name, []) }
+      end
 
       def aws_config(key)
         find_aws_setting_by(

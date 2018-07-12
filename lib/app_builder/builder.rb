@@ -19,7 +19,9 @@ module AppBuilder
 
     def build
       archiver.archive
+      Array(before_build).each { |hook| hook.call(self) }
       execute("tar zcf #{builded_src_path} .", chdir: archive_path)
+      Array(after_build).each { |hook| hook.call(self) }
     end
   end
 end
