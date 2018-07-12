@@ -24,11 +24,11 @@ module AppBuilder
     def upload
       upload_proc = s3? ? method(:upload_to_s3) : method(:upload_to_server)
       builder.build
-      Array(before_upload).each { |hook| hook.call(self) }
-      upload_proc.call(builded_src_path, remote_src_file)
-      generate_manifest
-      upload_proc.call(builded_manifest_path, remote_manifest_file)
-      Array(after_upload).each { |hook| hook.call(self) }
+      execute_with_hooks(:upload) do
+        upload_proc.call(builded_src_path, remote_src_file)
+        generate_manifest
+        upload_proc.call(builded_manifest_path, remote_manifest_file)
+      end
     end
 
     def upload_to_s3(local, remote)

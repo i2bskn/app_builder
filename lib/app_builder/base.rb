@@ -13,6 +13,13 @@ module AppBuilder
 
     private
 
+      def execute_with_hooks(type)
+        raise ArgumentError unless block_given?
+        Array(send("before_#{type}")).each { |hook| hook.call(self) }
+        yield
+        Array(send("after_#{type}")).each { |hook| hook.call(self) }
+      end
+
       def create_base_directories
         execute("mkdir -p #{working_path} #{archive_path} #{build_path}")
       end
