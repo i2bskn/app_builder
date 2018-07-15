@@ -21,8 +21,17 @@ module AppBuilder
       }.instance_eval { binding }
     end
 
+    def [](key)
+      hash.fetch(key.to_s, nil)
+    end
+
+    def to_hash
+      source.fetch(name.to_s)
+    end
+    alias :hash :to_hash
+
     def source
-      @source ||= YAML.load_file(source_path)
+      @source ||= YAML.load(ERB.new(File.read(source_path)).result(binding))
     end
   end
 end
