@@ -32,17 +32,17 @@ module AppBuilder
     end
 
     def upload_to_s3(local, remote)
-      log(:info, "Upload #{local} to #{config.uploaded_url(remote)}")
       s3_client.put_object(
         bucket: upload_id,
         key:    remote,
         body:   File.open(local),
       )
+      log(:info, "Uploaded #{local} to #{config.uploaded_url(remote)}")
     end
 
     def upload_to_server(local, remote)
-      log(:info, "Upload #{local} to #{src_url}")
-      resource_server.upload(local, remote)
+      resource_server.upload(local, File.join(resource_document_root, remote))
+      log(:info, "Uploaded #{local} to #{config.uploaded_url(remote)}")
     end
 
     def generate_manifest

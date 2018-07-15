@@ -35,6 +35,7 @@ module AppBuilder
       :resource_host,
       :resource_user,
       :resource_ssh_options,
+      :resource_document_root,
     ].freeze
 
     PARAMETERS = [
