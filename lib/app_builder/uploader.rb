@@ -54,7 +54,7 @@ module AppBuilder
     private
 
       def s3?
-        upload_type == :s3
+        resource_type == :s3
       end
 
       def s3_client

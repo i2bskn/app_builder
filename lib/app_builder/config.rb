@@ -6,7 +6,7 @@ module AppBuilder
       :remote_repository,    # default: remote origin
       :branch,               # default: TARGET_BRANCH or master
       :revision,             # default: commit hash
-      :upload_type,          # :s3 or :http or :https (default: :s3)
+      :resource_type,        # :s3 or :http or :https (default: :s3)
       :upload_id,            # bucket name or remote host (default: none)
       :remote_app_home_base, # default: /var/www
       :logger,               # default: AppBuilder::Logger
@@ -124,7 +124,7 @@ module AppBuilder
     end
 
     def uploaded_url(path)
-      "#{upload_type.to_s}://#{File.join(upload_id, path)}"
+      "#{resource_type.to_s}://#{File.join(upload_id, path)}"
     end
 
     def reset
@@ -140,7 +140,7 @@ module AppBuilder
       @resource_ssh_options   = {}
       @remote_app_home_base   = "/var/www"
       @logger                 = Logger.new(STDOUT)
-      @upload_type            = :s3
+      @resource_type          = :s3
 
       # for upload to S3 (from `.aws/config` and `.aws/credentials`)
       @region            = ENV.fetch("AWS_DEFAULT_REGION", aws_config("region") || "ap-northeast-1")
