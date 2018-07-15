@@ -9,7 +9,7 @@ module AppBuilder
       :resource_type,        # :s3 or :http or :https (default: :s3)
       :upload_id,            # bucket name or remote host (default: none)
       :remote_app_home_base, # default: /var/www
-      :keep_release          # default: 5
+      :keep_release,         # default: 5
       :logger,               # default: AppBuilder::Logger
 
       # hooks
