@@ -7,14 +7,17 @@ commands:
     - mkdir -p <%= remote_app_home %>/releases
     - mkdir -p <%= remote_app_home %>/shared/log
     - mkdir -p <%= remote_app_home %>/shared/pids
+    - mkdir -p <%= remote_app_home %>/shared/bindle
   post:
     - ln -nfs <%= remote_app_home %>/releases/<%= build_id %> <%= remote_app_home %>/current
     - rm -rf <%= remote_app_home %>/current/log
     - ln -nfs <%= remote_app_home %>/shared/log <%= remote_app_home %>/current/log
     - mkdir -p <%= remote_app_home %>/current/tmp
     - ln -nfs <%= remote_app_home %>/shared/pids <%= remote_app_home %>/current/tmp/pids
+    - cd <%= remote_app_home %>/current && bundle install --deployment --without development test --path <%= remote_app_home %>/shared/bundle
     - echo 'deploy done'
   success:
+    - cd <%= remote_app_home %>/releases && ls -1 | sort --reverse | tail -n +<%= keep_release + 1 %> | xargs rm -rf
     - echo 'deploy success'
   failure:
     - echo 'deploy failed!!'

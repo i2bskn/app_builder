@@ -9,6 +9,7 @@ module AppBuilder
       :resource_type,        # :s3 or :http or :https (default: :s3)
       :upload_id,            # bucket name or remote host (default: none)
       :remote_app_home_base, # default: /var/www
+      :keep_release          # default: 5
       :logger,               # default: AppBuilder::Logger
 
       # hooks
@@ -141,6 +142,7 @@ module AppBuilder
       @remote_app_home_base   = "/var/www"
       @logger                 = Logger.new(STDOUT)
       @resource_type          = :s3
+      @keep_release           = 5
 
       # for upload to S3 (from `.aws/config` and `.aws/credentials`)
       @region            = ENV.fetch("AWS_DEFAULT_REGION", aws_config("region") || "ap-northeast-1")
