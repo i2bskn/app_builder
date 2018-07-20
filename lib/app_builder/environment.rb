@@ -6,7 +6,7 @@ module AppBuilder
     def initialize(source_path, name: nil, repo_path: nil, branch: nil)
       @name        = name || ENV.fetch("APP_ENV", "default")
       @repo_path   = repo_path || `git rev-parse --show-toplevel`.chomp
-      @branch      = branch || `git symbolic-ref --short HEAD`.chomp
+      @branch      = branch || ENV.fetch("TARGET_BRANCH", `git symbolic-ref --short HEAD`.chomp)
       @source_path = source_path
     end
 

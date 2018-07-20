@@ -132,7 +132,7 @@ module AppBuilder
       @build_id               = Time.now.strftime("%Y%m%d%H%M%S")
       @project_name           = File.basename(`git rev-parse --show-toplevel`.chomp)
       @remote_repository      = `git remote get-url origin`.chomp
-      @branch                 = ENV.fetch("TARGET_BRANCH", "master")
+      @branch                 = ENV.fetch("TARGET_BRANCH", `git symbolic-ref --short HEAD`.chomp)
       @revision               = `git rev-parse #{branch}`.chomp
       @remote_src_path        = "assets"
       @manifest_template_path = File.expand_path("template/manifest.yml.erb", __dir__)
