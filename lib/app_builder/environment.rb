@@ -1,10 +1,12 @@
 module AppBuilder
   class Environment
     attr_accessor :name
-    attr_reader :source_path
+    attr_reader :repo_path, :branch, :source_path
 
-    def initialize(name, source_path)
-      @name        = name
+    def initialize(source_path, name: nil, repo_path: nil, branch: nil)
+      @name        = name || ENV.fetch("APP_ENV", "default")
+      @repo_path   = repo_path || `git rev-parse --show-toplevel`.chomp
+      @branch      = branch || `git symbolic-ref --short HEAD`.chomp
       @source_path = source_path
     end
 
@@ -31,7 +33,13 @@ module AppBuilder
     alias :hash :to_hash
 
     def source
-      @source ||= YAML.load(ERB.new(File.read(source_path)).result(binding))
+      @source ||= YAML.load(
+        ERB.new(
+          Dir.chdir(repo_path) {
+            `git show #{branch}:#{source_path}`
+          }
+        ).result(binding)
+      )
     end
   end
 end
