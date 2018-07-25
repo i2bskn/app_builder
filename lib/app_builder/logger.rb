@@ -14,9 +14,7 @@ module AppBuilder
         end
     end
 
-    def initialize(logdev, shift_age = 0, shift_size = 1048576, level: DEBUG,
-                 progname: nil, formatter: nil, datetime_format: nil,
-                 shift_period_suffix: '%Y%m%d')
+    def initialize(logdev, shift_age = 0, shift_size = 1048576)
       super
       @default_formatter = Formatter.new
     end
