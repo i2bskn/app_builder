@@ -43,7 +43,7 @@ module AppBuilder
       if local?
         if erb
           log(:info, "Create #{dest_path} from #{src_path}")
-          File.open(dest_path, "w") { |f| f.write(ERB.new(File.read(src_path)).result) }
+          File.open(dest_path, "w") { |f| f.write(ERB.new(File.read(src_path), nil, "-").result) }
         else
           execute("cp #{src_path} #{dest_path}")
         end
@@ -53,7 +53,7 @@ module AppBuilder
           if erb
             begin
               f = Tempfile.open(File.basename(dest_path))
-              f.write(ERB.new(File.read(src_path)).result)
+              f.write(ERB.new(File.read(src_path), nil, "-").result)
               f.close
               ssh.scp.upload!(f.path, dest_path)
             rescue

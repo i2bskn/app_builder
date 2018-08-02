@@ -13,7 +13,7 @@ module AppBuilder
 
     def create_file(template_path, output_path)
       File.open(output_path, "w") do |f|
-        f.write(ERB.new(File.read(template_path)).result(binding))
+        f.write(ERB.new(File.read(template_path), nil, "-").result(binding))
       end
     end
 
@@ -42,7 +42,7 @@ module AppBuilder
           raise "Unknown source_type: #{source_type}"
         end
 
-        YAML.load(ERB.new(raw_src).result(binding))
+        YAML.load(ERB.new(raw_src, nil, "-").result(binding))
       end
 
       def method_missing(name, *args, &block)

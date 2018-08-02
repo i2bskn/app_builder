@@ -47,7 +47,7 @@ module AppBuilder
 
     def generate_manifest
       checksum = `openssl sha256 #{builded_src_path} | awk -F"=" '{ print $2 }'`.strip
-      manifest = ERB.new(File.read(manifest_template_path)).result(binding)
+      manifest = ERB.new(File.read(manifest_template_path), nil, "-").result(binding)
       File.open(builded_manifest_path, "w") { |f| f.write(manifest) }
     end
 
