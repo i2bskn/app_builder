@@ -4,7 +4,7 @@ module AppBuilder
       :build_id,             # default: timestamp
       :project_name,         # default: repository name
       :remote_repository,    # default: remote origin
-      :branch,               # default: TARGET_BRANCH or master
+      :branch,               # default: TARGET_BRANCH or current branch
       :revision,             # default: commit hash
       :resource_type,        # :s3 or :http or :https (default: :s3)
       :upload_id,            # bucket name or remote host (default: none)
@@ -133,7 +133,7 @@ module AppBuilder
       @project_name           = File.basename(`git rev-parse --show-toplevel`.chomp)
       @remote_repository      = `git remote get-url origin`.chomp
       @branch                 = ENV.fetch("TARGET_BRANCH", `git symbolic-ref --short HEAD`.chomp)
-      @revision               = `git rev-parse #{branch}`.chomp
+      @revision               = `git rev-parse origin/#{branch}`.chomp
       @remote_src_path        = "assets"
       @manifest_template_path = File.expand_path("template/manifest.yml.erb", __dir__)
       @remote_manifest_path   = "manifests"
