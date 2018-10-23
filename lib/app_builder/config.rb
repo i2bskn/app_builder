@@ -77,7 +77,7 @@ module AppBuilder
     end
 
     def working_path
-      File.join("/var/tmp", project_name)
+      ENV.fetch("WORKING_PATH", File.join("/var/tmp", project_name))
     end
 
     def repo_path
